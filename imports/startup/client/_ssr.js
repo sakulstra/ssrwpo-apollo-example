@@ -1,18 +1,20 @@
 import React from 'react'
-import {createRouter, logger} from 'meteor/ssrwpo:ssr'
-import {ApolloProvider} from 'react-apollo'
-import 'isomorphic-fetch'
-import {RootRouter} from '/imports/env/router'
-import {client} from '/imports/env/apollo'
+import { applyMiddleware } from 'redux';
+import { createRouter, logger } from 'meteor/ssrwpo:ssr';
+import 'isomorphic-fetch';
+import MainApp, { apolloReducer, apolloMiddleware } from '/imports/MainApp';
 
-const MainApp = (props, context) => (
-	<ApolloProvider client={client}>
-		<RootRouter/>
-	</ApolloProvider>
-)
+const appMiddlewares = [
+  apolloMiddleware,
+];
+
+const storeEnhancers = applyMiddleware(...appMiddlewares);
 
 createRouter({
-	MainApp
+	MainApp,
+  appReducers: { apollo: apolloReducer },
+  storeEnhancers,
+	hasUrlStore: false,
 }).then(() => {
 	logger.info('started ssr')
 })
